@@ -100,6 +100,21 @@ def main():
     print(f"FINAL RESULTS")
     print(f"Accuracy: {accuracy:.2f}%")
 
+    incorrect = total - correct
+    fig_bar, ax_bar = plt.subplots(figsize=(5, 4))
+    categories = ["Correct", "Incorrect"]
+    counts = [correct, incorrect]
+    ax_bar.bar(categories, counts)
+    ax_bar.set_title("Model Performance Summary")
+    ax_bar.set_xlabel("Correct / Incorrect")
+    ax_bar.set_ylabel("Count")
+    for idx, val in enumerate(counts):
+        ax_bar.text(idx, val + 0.1, str(val), ha="center", va="bottom")
+    plt.tight_layout()
+    plt.savefig("accuracy_chart.png", dpi=150)
+    plt.close(fig_bar)
+    print(f"Accuracy chart saved to accuracy_chart.png")
+
     valid = [(t, p) for t, p in zip(y_true, y_pred) if p is not None]
     if valid:
         y_true_val, y_pred_val = zip(*valid)
