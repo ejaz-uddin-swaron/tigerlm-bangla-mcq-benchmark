@@ -1,6 +1,8 @@
 import json
 import re
 import torch
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
 
@@ -74,12 +76,17 @@ def main():
 
     correct = 0
     total = len(dataset)
+    y_true = []
+    y_pred = []
 
     for i, item in enumerate(dataset, 1):
         prompt = build_prompt(item)
         response = run_inference(model, tokenizer, prompt)
         predicted = extract_answer(response)
         ground_truth = item["answer"]
+
+        y_true.append(ground_truth)
+        y_pred.append(predicted)
 
         if predicted == ground_truth:
             correct += 1
@@ -92,6 +99,31 @@ def main():
     accuracy = (correct / total) * 100 if total > 0 else 0.0
     print(f"FINAL RESULTS")
     print(f"Accuracy: {accuracy:.2f}%")
+
+    valid = [(t, p) for t, p in zip(y_true, y_pred) if p is not None]
+    if valid:
+        y_true_val, y_pred_val = zip(*valid)
+        labels = ["A", "B", "C", "D"]
+        cm = confusion_matrix(y_true_val, y_pred_val, labels=labels)
+        fig, ax = plt.subplots(figsize=(6, 5))
+        im = ax.imshow(cm, cmap="Blues")
+        ax.set_xticks(range(len(labels)))
+        ax.set_yticks(range(len(labels)))
+        ax.set_xticklabels(labels)
+        ax.set_yticklabels(labels)
+        ax.set_xlabel("Predicted")
+        ax.set_ylabel("Actual")
+        ax.set_title("TigerLM MCQ Confusion Matrix")
+        for i in range(len(labels)):
+            for j in range(len(labels)):
+                ax.text(j, i, cm[i, j], ha="center", va="center")
+        fig.colorbar(im)
+        plt.tight_layout()
+        plt.savefig("confusion_matrix.png", dpi=150)
+        plt.close(fig)
+        print(f"Confusion matrix saved to confusion_matrix.png")
+    else:
+        print("No valid predictions to compute confusion matrix.")
 
 
 if __name__ == "__main__":
