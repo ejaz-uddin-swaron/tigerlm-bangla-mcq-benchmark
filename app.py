@@ -85,7 +85,6 @@ demo = gr.Interface(
     outputs=gr.Textbox(label="Predicted Answer"),
     title="TigerLM Bangla MCQ Solver",
     description="Enter a Bangla multiple-choice question and four options. The model predicts the correct answer.",
-    allow_flagging="never",
 )
 
 if __name__ == "__main__":
