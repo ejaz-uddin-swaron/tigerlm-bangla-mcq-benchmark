@@ -194,7 +194,7 @@ If you use this work in your research, please cite:
   title = {LoRA Fine-Tuning of TigerLM-1B-it for Bangla MCQ Answering},
   year = {2026},
   publisher = {GitHub},
-  url = {https://github.com/yourusername/TigerLM-HF-Deploy}
+  url = {https://github.com/ejaz-uddin-swaron/TigerLM-HF-Deploy}
 }
 ```
 
