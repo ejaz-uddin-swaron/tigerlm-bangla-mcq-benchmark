@@ -2,7 +2,7 @@
 
 ## Abstract
 
-This project fine-tunes the **TigerLM-1B-it** instruction-tuned language model on a **Bangla multiple-choice question (MCQ) answering** task using **Low-Rank Adaptation (LoRA)**, a parameter-efficient fine-tuning (PEFT) technique. The adapted model achieves **83.33% accuracy** on a held-out benchmark of 12 domain-specific Bangla MCQs spanning biology and chemistry. A standalone evaluation pipeline reports per-question predictions alongside aggregate metrics, serving as a reproducible benchmark for Bangla LLM evaluation.
+This project fine-tunes the **TigerLM-1B-it** instruction-tuned language model on a **Bangla multiple-choice question (MCQ) answering** task using **Low-Rank Adaptation (LoRA)**, a parameter-efficient fine-tuning (PEFT) technique. The adapted model achieves **73.33% accuracy** on an expanded held-out benchmark of **30 Bangla medical MCQs**. A standalone evaluation pipeline reports per-question predictions alongside aggregate metrics and generates visual performance artifacts (accuracy chart and confusion matrix), serving as a reproducible benchmark for Bangla LLM evaluation.
 
 ## Problem Statement
 
@@ -37,7 +37,7 @@ All seven linear projection layers in the transformer architecture (attention an
 
 ## Dataset
 
-The benchmark dataset (`benchmark_dataset.json`) comprises **12 Bangla multiple-choice questions** on biology and chemistry topics (e.g., diabetes pathophysiology, human anatomy, chemical formulae). Each entry follows this schema:
+The benchmark dataset (`benchmark_dataset.json`) comprises **30 Bangla multiple-choice questions** focused on medical and health science topics (e.g., human anatomy, disease pathophysiology, pharmacology, biochemistry). Each entry follows this schema:
 
 ```json
 {
@@ -52,13 +52,16 @@ The benchmark dataset (`benchmark_dataset.json`) comprises **12 Bangla multiple-
 }
 ```
 
-The dataset covers the following question types:
+The dataset covers the following categories:
 
-| Category       | Count |
-|----------------|-------|
-| Human Biology  | 10    |
-| Chemistry      | 2     |
-| **Total**      | **12**|
+| Category                         | Count |
+|----------------------------------|-------|
+| Human Anatomy & Physiology       | 10    |
+| Disease Pathology & Diagnosis    | 8     |
+| Pharmacology & Treatment         | 4     |
+| Biochemistry & Nutrition         | 5     |
+| Microbiology & Infectious Disease| 3     |
+| **Total**                        | **30**|
 
 The Bengali script (`ক`/`খ`/`গ`/`ঘ`) is used for option labels and answer keys.
 
@@ -84,40 +87,73 @@ The evaluation pipeline (`evaluate.py`) proceeds as follows:
 
 | Metric   | Value   |
 |----------|---------|
-| Accuracy | **83.33%** (10 / 12) |
+| Accuracy | **73.33%** (22 / 30) |
+
+### Performance Visualizations
+
+The evaluation pipeline automatically generates two diagnostic figures:
+
+- **`accuracy_chart.png`** — A bar chart comparing correct vs. incorrect prediction counts.
+- **`confusion_matrix.png`** — A 4×4 confusion matrix over answer labels (A–D), revealing specific answer confusion patterns.
 
 ### Per-Question Breakdown
 
-| # | Question Topic         | Predicted | Ground Truth | Correct |
-|---|------------------------|-----------|--------------|---------|
-| 1 | Diabetes characteristic| A         | A            | ✓       |
-| 2 | Blood pressure control | C         | C            | ✓       |
-| 3 | Insulin secretion      | B         | B            | ✓       |
-| 4 | Largest human organ    | C         | C            | ✓       |
-| 5 | Type 2 diabetes cause  | B         | B            | ✓       |
-| 6 | Chromosome pairs       | C         | C            | ✓       |
-| 7 | Water pH               | C         | C            | ✓       |
-| 8 | Cardiac cycle          | C         | C            | ✓       |
-| 9 | Diabetes diet control  | B         | B            | ✓       |
-|10| RBC lifespan           | C         | C            | ✓       |
-|11| Sulfuric acid formula  | —         | C            | ✗       |
-|12| Blood clotting vitamin | —         | C            | ✗       |
+| # | Question Topic                         | Predicted | Ground Truth | Correct |
+|---|----------------------------------------|-----------|--------------|---------|
+| 1 | Diabetes characteristic                | B         | A            | ✗       |
+| 2 | Blood pressure control organ           | C         | C            | ✓       |
+| 3 | Insulin secretion source               | B         | B            | ✓       |
+| 4 | Largest human organ                    | B         | C            | ✗       |
+| 5 | Type 2 diabetes cause                  | B         | B            | ✓       |
+| 6 | Chromosome pairs in humans             | C         | C            | ✓       |
+| 7 | pH of water                            | C         | C            | ✓       |
+| 8 | Cardiac cycle definition               | C         | C            | ✓       |
+| 9 | Diabetes diet control                  | B         | B            | ✓       |
+|10| RBC lifespan                           | C         | C            | ✓       |
+|11| Sulfuric acid formula                  | C         | C            | ✓       |
+|12| Blood clotting vitamin                 | C         | C            | ✓       |
+|13| Heart layer in contact with blood      | C         | C            | ✓       |
+|14| Squint (strabismus) affected muscle    | C         | B            | ✗       |
+|15| Brain region for balance               | B         | B            | ✓       |
+|16| Vitamin D deficiency disease           | B         | B            | ✓       |
+|17| AIDS causative virus                   | C         | C            | ✓       |
+|18| White blood cell function              | B         | B            | ✓       |
+|19| Tuberculosis primary affected organ    | C         | B            | ✗       |
+|20| Elevated WBC count condition           | C         | B            | ✗       |
+|21| Body temperature regulator             | B         | B            | ✓       |
+|22| Dengue platelet count change           | B         | B            | ✓       |
+|23| Largest gland in human body            | B         | B            | ✓       |
+|24| Hypertension meaning                   | C         | C            | ✓       |
+|25| Pre-surgery analgesic class            | B         | B            | ✓       |
+|26| O− blood group designation             | C         | B            | ✗       |
+|27| Coronary artery disease vessel         | B         | B            | ✓       |
+|28| Penicillin target organism             | B         | B            | ✓       |
+|29| Hemoglobin oxygen-binding component    | A         | C            | ✗       |
+|30| UTI affected anatomical sites          | C         | D            | ✗       |
 
-Two errors occurred on chemistry-related items (sulfuric acid formula and blood clotting vitamin), suggesting the model may be less robust on **chemistry domain knowledge** compared to biology.
+The model correctly answered **22 of 30** questions. Eight errors occurred, primarily on items requiring specialized anatomical or pathophysiological knowledge.
 
 ## Error Analysis
 
-The two misclassified instances share common characteristics:
+The eight misclassified questions reveal several systematic patterns:
 
-- Both are **chemistry questions** (inorganic/formula and nutrition/biochemistry), while the training data likely contained predominantly biology content.
-- In both cases, the model failed to emit any valid option label, producing an empty or non-conforming response that could not be parsed.
-- This indicates a **domain coverage gap** rather than a simple answer confusion, implying that additional chemistry-domain training data would likely resolve these errors.
+1. **Anatomical & physiological knowledge gaps:** Three errors (#4 — largest organ, #14 — squint muscle, #19 — tuberculosis organ) involve specific anatomical facts. The model defaulted to option `C` across these cases, suggesting a positional bias or uncertainty rather than genuine knowledge.
+
+2. **Terminology confusion:** For #1 (diabetes characteristic), the model chose `B` (blood lipids) instead of `A` (blood sugar), indicating possible confusion between diabetes and hyperlipidemia — two commonly co-occurring metabolic conditions.
+
+3. **Hematology & biochemistry nuance:** Questions `#26` (O− blood group) and `#29` (hemoglobin oxygen binding) require domain-specific knowledge. The model picked a related but imprecise option in both cases — `C` ("donor" without "universal") instead of `B` ("universal donor") for O−, and `A` (globin protein) instead of `C` (iron) for oxygen binding.
+
+4. **Multi-site disease knowledge:** The UTI question (`#30`, correct answer `D`: all listed sites) was answered as `C` (bladder only). While the bladder is the most common UTI site, the question required understanding that the entire urinary tract can be involved.
+
+5. **Answer distribution bias:** Notably, 6 of the 8 incorrect predictions favored option `C`, consistent with the training data's answer distribution imbalance noted in the original 12-question benchmark.
+
+These patterns suggest that while the model has acquired broad medical knowledge, it struggles with **fine-grained anatomical specificity** and exhibits a **residual positional bias** toward option `C` when uncertain.
 
 ## Limitations
 
-1. **Small benchmark size (12 questions):** The evaluation set is insufficient for statistical confidence in the reported accuracy.
-2. **Imbalanced answer distribution:** 9 of 12 questions have the correct answer `C`, which may inflate accuracy if the model learns a positional bias.
-3. **Single-domain coverage:** The dataset covers only science topics; general knowledge and humanities questions are absent.
+1. **Moderate benchmark size (30 questions):** While tripled from the original 12, the evaluation set remains modest for robust statistical conclusions.
+2. **Imbalanced answer distribution:** The dataset exhibits some answer bias, which may inflate accuracy if the model exploits positional shortcuts.
+3. **Single-domain coverage:** The benchmark focuses exclusively on medical topics; general knowledge, humanities, and other domains are not represented.
 4. **Single base model:** Only TigerLM-1B-it was evaluated; comparisons with other Bangla-capable models (e.g., BanglaBERT, mT5) are not performed.
 5. **No training split documented:** The LoRA adapter weights are provided, but the full fine-tuning procedure (training hyperparameters, dataset splits, number of epochs) is not reproduced here.
 
@@ -137,8 +173,10 @@ The two misclassified instances share common characteristics:
 TigerLM-HF-Deploy/
 ├── .gitignore                     # Git ignore rules
 ├── app.py                         # Interactive inference script for Bangla Q&A
-├── benchmark_dataset.json         # Curated Bangla MCQ benchmark (12 questions)
+├── benchmark_dataset.json         # Curated Bangla MCQ benchmark (30 questions)
 ├── evaluate.py                    # Full evaluation pipeline with metrics
+├── accuracy_chart.png             # Bar chart: correct vs. incorrect counts
+├── confusion_matrix.png           # 4×4 confusion matrix over answer labels
 ├── model/                         # LoRA adapter weights and tokenizer files
 │   ├── adapter_config.json        # LoRA hyperparameter configuration
 │   ├── adapter_model.safetensors  # Trained LoRA adapter weights
@@ -156,12 +194,12 @@ TigerLM-HF-Deploy/
 
 - Python 3.10+
 - PyTorch (≥2.0)
-- `transformers`, `peft`, `sentencepiece`, `torch`
+- `transformers`, `peft`, `sentencepiece`, `torch`, `scikit-learn`, `matplotlib`
 
 Install dependencies:
 
 ```bash
-pip install transformers peft sentencepiece torch
+pip install transformers peft sentencepiece torch scikit-learn matplotlib
 ```
 
 ### Evaluation
@@ -172,7 +210,7 @@ Run the full benchmark evaluation:
 python evaluate.py
 ```
 
-The script loads the base model from Hugging Face, applies the LoRA adapter from `./model`, runs inference on all 12 benchmark questions, and prints per-question results along with final accuracy.
+The script loads the base model from Hugging Face, applies the LoRA adapter from `./model`, runs inference on all 30 benchmark questions, prints per-question results along with final accuracy, and generates two diagnostic figures: `accuracy_chart.png` and `confusion_matrix.png`.
 
 ### Interactive Inference
 
